@@ -1,0 +1,12 @@
+.git
+.github
+**/target
+**/.idea
+**/.vscode
+**/.next
+**/node_modules
+frontend/.next
+frontend/node_modules
+*.log
+k8s.zip
+docs/diagrams/

@@ -1,0 +1,101 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: user-service-migration
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command:
+            - sh
+            - -lc
+            - until nc -z mysql 3306; do sleep 5; done
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: product-service-migration
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command:
+            - sh
+            - -lc
+            - until nc -z mysql 3306; do sleep 5; done
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: favourite-service-migration
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command:
+            - sh
+            - -lc
+            - until nc -z mysql 3306; do sleep 5; done
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: shipping-service-migration
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command:
+            - sh
+            - -lc
+            - until nc -z mysql 3306; do sleep 5; done
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: order-service-migration
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command:
+            - sh
+            - -lc
+            - until nc -z mysql 3306; do sleep 5; done
+        - name: wait-for-rabbitmq
+          image: busybox:1.36
+          command:
+            - sh
+            - -lc
+            - until nc -z rabbitmq 5672; do sleep 5; done
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: payment-service-migration
+spec:
+  template:
+    spec:
+      initContainers:
+        - name: wait-for-mysql
+          image: busybox:1.36
+          command:
+            - sh
+            - -lc
+            - until nc -z mysql 3306; do sleep 5; done
+        - name: wait-for-rabbitmq
+          image: busybox:1.36
+          command:
+            - sh
+            - -lc
+            - until nc -z rabbitmq 5672; do sleep 5; done

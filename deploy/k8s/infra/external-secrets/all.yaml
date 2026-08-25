@@ -1,0 +1,55 @@
+apiVersion: external-secrets.io/v1beta1
+kind: SecretStore
+metadata:
+  name: platform-secrets
+spec:
+  provider:
+    kubernetes:
+      remoteNamespace: external-secrets
+      server:
+        caProvider:
+          type: ConfigMap
+          name: kube-root-ca.crt
+          key: ca.crt
+---
+apiVersion: external-secrets.io/v1beta1
+kind: ExternalSecret
+metadata:
+  name: api-gateway-secret
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    kind: SecretStore
+    name: platform-secrets
+  target:
+    name: api-gateway-secret
+    creationPolicy: Owner
+  data:
+    - secretKey: JWT_SECRET
+      remoteRef:
+        key: api-gateway
+        property: jwtSecret
+    - secretKey: USER_SERVICE_INTERNAL_AUTH_SECRET
+      remoteRef:
+        key: api-gateway
+        property: userServiceInternalAuthSecret
+    - secretKey: PRODUCT_SERVICE_INTERNAL_AUTH_SECRET
+      remoteRef:
+        key: api-gateway
+        property: productServiceInternalAuthSecret
+    - secretKey: ORDER_SERVICE_INTERNAL_AUTH_SECRET
+      remoteRef:
+        key: api-gateway
+        property: orderServiceInternalAuthSecret
+    - secretKey: PAYMENT_SERVICE_INTERNAL_AUTH_SECRET
+      remoteRef:
+        key: api-gateway
+        property: paymentServiceInternalAuthSecret
+    - secretKey: SHIPPING_SERVICE_INTERNAL_AUTH_SECRET
+      remoteRef:
+        key: api-gateway
+        property: shippingServiceInternalAuthSecret
+    - secretKey: FAVOURITE_SERVICE_INTERNAL_AUTH_SECRET
+      remoteRef:
+        key: api-gateway
+        property: favouriteServiceInternalAuthSecret

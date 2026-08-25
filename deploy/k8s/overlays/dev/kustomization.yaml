@@ -1,0 +1,43 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: ecommerce-dev
+
+resources:
+  - namespace.yaml
+  - ../../base
+  - ../../infra/dev-local
+  - ../../infra/ingress
+  - ../../infra/network-policies
+
+patches:
+  - path: patches.yaml
+  - path: app-patches.yaml
+  - path: job-patches.yaml
+  - path: delete-hpas.yaml
+
+images:
+  - name: ghcr.io/your-org/frontend
+    newName: docker.io/galata2500/frontend
+    newTag: v1.0.18
+  - name: ghcr.io/your-org/api-gateway
+    newName: docker.io/galata2500/api-gateway
+    newTag: v1.0.19
+  - name: ghcr.io/your-org/user-service
+    newName: docker.io/galata2500/user-service
+    newTag: v1.0.18
+  - name: ghcr.io/your-org/product-service
+    newName: docker.io/galata2500/product-service
+    newTag: v1.0.18
+  - name: ghcr.io/your-org/order-service
+    newName: docker.io/galata2500/order-service
+    newTag: v1.0.18
+  - name: ghcr.io/your-org/payment-service
+    newName: docker.io/galata2500/payment-service
+    newTag: v1.0.18
+  - name: ghcr.io/your-org/shipping-service
+    newName: docker.io/galata2500/shipping-service
+    newTag: v1.0.18
+  - name: ghcr.io/your-org/favourite-service
+    newName: docker.io/galata2500/favourite-service
+    newTag: v1.0.18

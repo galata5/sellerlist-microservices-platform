@@ -1,0 +1,38 @@
+:root {
+  --color-page: 245 247 250;
+  --color-surface: 255 255 255;
+  --color-surface-strong: 255 255 255;
+  --color-line: 229 231 235;
+  --color-text: 17 24 39;
+  --color-muted: 107 114 128;
+  --color-accent: 47 128 237;
+
+  --radius-xl: 14px;
+  --radius-2xl: 18px;
+
+  --space-1: 8px;
+  --space-2: 16px;
+  --space-3: 24px;
+  --space-4: 32px;
+  --space-5: 40px;
+  --space-6: 48px;
+  --space-7: 56px;
+  --space-8: 64px;
+  --space-9: 72px;
+  --space-10: 80px;
+  --space-section: clamp(64px, 7vw, 96px);
+
+  --font-display: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Consolas", "SFMono-Regular", "Courier New", monospace;
+}
+
+html[data-theme="dark"] {
+  --color-page: 10 14 23;
+  --color-surface: 17 24 39;
+  --color-surface-strong: 15 23 42;
+  --color-line: 51 65 85;
+  --color-text: 241 245 249;
+  --color-muted: 148 163 184;
+  --color-accent: 96 165 250;
+}

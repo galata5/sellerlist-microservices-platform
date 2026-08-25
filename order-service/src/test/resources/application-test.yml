@@ -1,0 +1,29 @@
+spring:
+  datasource:
+    driver-class-name: org.h2.Driver
+    url: jdbc:h2:mem:order_service;MODE=MySQL;DATABASE_TO_LOWER=TRUE;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+  flyway:
+    enabled: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+app:
+  catalog:
+    base-url: http://localhost:8500/product-service
+  # Keep the scheduled publisher from attempting a broker connection during context tests.
+  outbox:
+    publisher-fixed-delay-ms: 3600000
+
+security:
+  internal:
+    secret: test-internal-service-secret-at-least-32-characters
+    catalog-service-secret: test-catalog-service-secret-at-least-32-characters
+    expected-issuer: sellerlist-test

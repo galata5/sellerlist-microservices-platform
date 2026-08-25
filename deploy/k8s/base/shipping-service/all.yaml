@@ -1,0 +1,173 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: shipping-service-config
+  labels:
+    app: shipping-service
+data:
+  SPRING_APPLICATION_NAME: SHIPPING-SERVICE
+  SPRING_DATASOURCE_URL: jdbc:mysql://mysql.example.internal:3306/shipping_service?useSSL=true&serverTimezone=UTC
+  SPRING_DATASOURCE_USERNAME: shipping_service
+  INTERNAL_AUTH_EXPECTED_ISSUER: API-GATEWAY
+  SPRING_FLYWAY_ENABLED: "false"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: shipping-service-secret
+  labels:
+    app: shipping-service
+type: Opaque
+stringData:
+  SPRING_DATASOURCE_PASSWORD: change-me
+  INTERNAL_SERVICE_SECRET: change-me
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shipping-service
+  labels:
+    app: shipping-service
+    monitoring: enabled
+spec:
+  selector:
+    app: shipping-service
+  ports:
+    - name: http
+      port: 8600
+      targetPort: http
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shipping-service
+  labels:
+    app: shipping-service
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: shipping-service
+  template:
+    metadata:
+      labels:
+        app: shipping-service
+        monitoring: enabled
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: shipping-service
+          image: ghcr.io/your-org/shipping-service:v1.0.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8600
+          envFrom:
+            - configMapRef:
+                name: shipping-service-config
+            - secretRef:
+                name: shipping-service-secret
+          resources:
+            requests:
+              cpu: 150m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 768Mi
+          startupProbe:
+            httpGet:
+              path: /shipping-service/actuator/health
+              port: http
+            failureThreshold: 30
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /shipping-service/actuator/health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 3
+          livenessProbe:
+            httpGet:
+              path: /shipping-service/actuator/health
+              port: http
+            periodSeconds: 20
+            timeoutSeconds: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: shipping-service
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: shipping-service-migration
+  labels:
+    app: shipping-service
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: shipping-service-migration
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: migrate
+          image: ghcr.io/your-org/shipping-service:v1.0.0
+          imagePullPolicy: IfNotPresent
+          command:
+            - java
+            - -jar
+            - app.jar
+            - --spring.main.web-application-type=none
+          envFrom:
+            - configMapRef:
+                name: shipping-service-config
+            - secretRef:
+                name: shipping-service-secret
+          env:
+            - name: SPRING_FLYWAY_ENABLED
+              value: "true"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
